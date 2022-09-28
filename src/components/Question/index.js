@@ -3,20 +3,18 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
 import { getQuestion } from "../../redux/api";
 import { useDispatch, useSelector } from "react-redux";
 import "./styles.css";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
-import { question } from "../../redux/questionSlice";
+import { question, time } from "../../redux/questionSlice";
+import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
 
 function Question() {
   const listQuestion = useSelector((state) => state.question.question);
   const questionData = useSelector((state) => state.question.pageData);
-  console.log("Question data---------------", questionData);
-
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState();
   const [on, setOn] = useState(false);
@@ -24,12 +22,16 @@ function Question() {
   const [chooseAnswer, setChooseAnswer] = useState();
   const [correctAnswer, setCorrectAnswer] = useState();
   const [checked, setChecked] = useState();
+  const [time, setTime] = useState();
 
-  // console.log(
-  //   "QuestionData questionDa --------------",
-  //   questionData[currentQuestionIndex]?.checked
-  // );
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    startTimer();
+
+    return () => {};
+  }, []);
+
   useEffect(() => {
     getQuestion(dispatch);
     if (answer) {
@@ -44,45 +46,29 @@ function Question() {
         })
       );
     }
-    console.log("Component 1111111111");
-
-    return () => {
-      console.log("Component unmount22222");
-    };
   }, [answer]);
 
   const handleChangeValue = (e) => {
-    console.log("Dap an da choose");
     const str1 = e.target.value;
     const str2 = listQuestion[currentQuestionIndex]?.answer;
     setCorrectAnswer(listQuestion[currentQuestionIndex]?.answer);
     setChooseAnswer(e.target.value);
     if (str1.localeCompare(str2) === 0) {
       setAnswer("true");
-      setChecked(true);
     }
     if (str1.localeCompare(str2) !== 0) {
       setAnswer("false");
-      setChecked(false);
     }
+    setChecked(true);
     setOn(true);
   };
 
-  const handleChangePage = (event, value) => {
-    // console.log("Current -----------", value);
-    // console.log("Current page -----------", currentPage);
-    setCurrentPage(value);
-    setCurrentQuestionIndex(value - 1);
-  };
-
-  const endTime = () => {
-    alert("Het cau hoi");
-  };
+  const endGame = () => {};
 
   const handleBtnNext = (page) => {
     if (listQuestion.length === currentPage) {
       setCurrentQuestionIndex(currentPage - 1);
-      endTime();
+      endGame();
       return;
     }
     setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -91,15 +77,62 @@ function Question() {
     setCurrentPage(currentPage + 1);
   };
 
-  console.log("Answer---------", answer);
+  const handleChangePage = (event, value) => {
+    // console.log("Value22222222222---------", value);
+    // console.log("currentQuestionIndex---------", currentQuestionIndex);
+    // if (questionData[currentQuestionIndex]?.checked === true) {
+    //   console.log("run");
+    //   setCurrentPage(value);
+    //   setCurrentQuestionIndex(value - 1);
+    // }
+    if (value > currentQuestionIndex + 1) {
+      return false;
+    }
+    setCurrentPage(value);
+    setCurrentQuestionIndex(value - 1);
+  };
+
+  const startTimer = () => {
+    const countDownTime = Date.now() + 10000;
+    const interval = setInterval(() => {
+      const now = new Date();
+      const distance = countDownTime - now;
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      if (distance < 0) {
+        clearInterval(interval);
+        setTime(
+          {
+            minutes: 0,
+            seconds: 0,
+          },
+          () => {
+            alert("Time has expired!");
+            endGame();
+          }
+        );
+      } else {
+        setTime({
+          minutes,
+          seconds,
+        });
+      }
+    }, 1000);
+  };
+  console.log("Time-------", time);
 
   return (
     <div className="container">
+      <h3>
+        {time?.minutes}:{time?.seconds}
+      </h3>
       <div className="child1">
         <Stack spacing={2}>
           <Pagination
             count={listQuestion.length}
-            color="secondary"
+            shape="rounded"
+            color="error"
             page={currentPage}
             onChange={handleChangePage}
           />
@@ -115,6 +148,7 @@ function Question() {
             aria-labelledby="demo-radio-buttons-group-label"
             name="radio-buttons-group"
             onChange={handleChangeValue}
+            value={questionData[currentQuestionIndex]?.chooseAnswer ?? ""}
           >
             <FormControlLabel
               value={listQuestion[currentQuestionIndex]?.optionA}
@@ -143,19 +177,17 @@ function Question() {
           </RadioGroup>
         </FormControl>
         <h3 style={{ color: "#1da1f2" }}>
-          {questionData[currentQuestionIndex]?.answer === "true" && (
-            <p>True:{questionData[currentQuestionIndex]?.correctAnswer}</p>
-          )}
+          {questionData[currentQuestionIndex]?.answer === "true" && <p>True</p>}
         </h3>
-        <h3 style={{ color: "Red" }}>
+        <h3 style={{ color: "#1da1f2" }}>
           {questionData[currentQuestionIndex]?.answer === "false" && (
-            <p>
+            <p style={{ color: "red" }}>
               False.Answer correct:
               {questionData[currentQuestionIndex]?.correctAnswer}
             </p>
           )}
         </h3>
-        {answer && (
+        {questionData[currentQuestionIndex]?.chooseAnswer && (
           <Button
             className="btn-next"
             onClick={() => handleBtnNext(currentQuestionIndex)}

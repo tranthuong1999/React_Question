@@ -10,19 +10,24 @@ const questionSlice = createSlice({
       //   on: true,
       //   checked: true,
       //   annswer: "true",
-      //   correctAnswer: "Xây dựng cơ sở vật chất kĩ thuật cho chủ nghĩa xã hội",
-      //   chooseAnswer: "Liên Xô trở thành cường quốc kinh tế.",
+      //   correctAnswer: "A",
+      //   chooseAnswer: "B",
       // },
     ],
+    time: null,
   },
   reducers: {
     listQuestion: (state, action) => {
       state.question = [...action.payload];
     },
     question: (state, action) => {
-      console.log("Question state------------", state);
-      console.log("Question action------------", action);
+      // console.log("Question state 1111------------", state);
+      // console.log("Question action 222------------", action.payload);
       state.pageData = state.pageData.concat(action.payload);
+    },
+    time: (state, action) => {
+      console.log("Question state time------------", state);
+      console.log("Question action time------------", action);
     },
   },
 });
