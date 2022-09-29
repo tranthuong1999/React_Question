@@ -9,8 +9,9 @@ import "./styles.css";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
-import { question, time } from "../../redux/questionSlice";
-import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
+import { question, times } from "../../redux/questionSlice";
+import { useHistory } from "react-router-dom";
+import View from "../View";
 
 function Question() {
   const listQuestion = useSelector((state) => state.question.question);
@@ -25,12 +26,9 @@ function Question() {
   const [time, setTime] = useState();
 
   const dispatch = useDispatch();
+  const history = useHistory();
 
-  useEffect(() => {
-    startTimer();
-
-    return () => {};
-  }, []);
+  const timeRest = useSelector((state) => state.question.times);
 
   useEffect(() => {
     getQuestion(dispatch);
@@ -46,10 +44,38 @@ function Question() {
         })
       );
     }
+    return () => {
+      console.log("Time unmount answer");
+    };
   }, [answer]);
+
+  // useEffect(() => {
+  //   const countDownTime = Date.now() + 30000;
+  //   const interval = setInterval(() => {
+  //     const now = new Date();
+  //     const distance = countDownTime - now;
+  //     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  //     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  //     if (distance < 0) {
+  //       clearInterval(interval);
+  //       setTime({ minutes: 0, seconds: 0 });
+  //       endGame();
+  //     } else {
+  //       setTime({
+  //         minutes,
+  //         seconds,
+  //       });
+  //     }
+  //   }, 1000);
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, []);
 
   const handleChangeValue = (e) => {
     const str1 = e.target.value;
+    console.log("Handle change----", str1);
+
     const str2 = listQuestion[currentQuestionIndex]?.answer;
     setCorrectAnswer(listQuestion[currentQuestionIndex]?.answer);
     setChooseAnswer(e.target.value);
@@ -63,7 +89,10 @@ function Question() {
     setOn(true);
   };
 
-  const endGame = () => {};
+  const endGame = () => {
+    alert("Time out");
+    setOn(true);
+  };
 
   const handleBtnNext = (page) => {
     if (listQuestion.length === currentPage) {
@@ -78,127 +107,122 @@ function Question() {
   };
 
   const handleChangePage = (event, value) => {
-    // console.log("Value22222222222---------", value);
-    // console.log("currentQuestionIndex---------", currentQuestionIndex);
-    // if (questionData[currentQuestionIndex]?.checked === true) {
-    //   console.log("run");
-    //   setCurrentPage(value);
-    //   setCurrentQuestionIndex(value - 1);
-    // }
     if (value > currentQuestionIndex + 1) {
       return false;
     }
     setCurrentPage(value);
     setCurrentQuestionIndex(value - 1);
   };
+  dispatch(times(time));
 
-  const startTimer = () => {
-    const countDownTime = Date.now() + 10000;
-    const interval = setInterval(() => {
-      const now = new Date();
-      const distance = countDownTime - now;
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      if (distance < 0) {
-        clearInterval(interval);
-        setTime(
-          {
-            minutes: 0,
-            seconds: 0,
-          },
-          () => {
-            alert("Time has expired!");
-            endGame();
-          }
-        );
-      } else {
-        setTime({
-          minutes,
-          seconds,
-        });
-      }
-    }, 1000);
+  const handleSubmit = () => {
+    console.log("Submit cliced");
   };
-  console.log("Time-------", time);
+  const handleReset = () => {
+    localStorage.clear();
+  };
+
+  console.log("Time Rest-----------------", timeRest?.seconds);
 
   return (
-    <div className="container">
-      <h3>
-        {time?.minutes}:{time?.seconds}
-      </h3>
-      <div className="child1">
-        <Stack spacing={2}>
-          <Pagination
-            count={listQuestion.length}
-            shape="rounded"
-            color="error"
-            page={currentPage}
-            onChange={handleChangePage}
-          />
-        </Stack>
-      </div>
-      <div className="child2">
-        <FormControl>
-          <h2>
-            {currentQuestionIndex + 1}.
-            {listQuestion[currentQuestionIndex]?.question}{" "}
-          </h2>
-          <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
-            name="radio-buttons-group"
-            onChange={handleChangeValue}
-            value={questionData[currentQuestionIndex]?.chooseAnswer ?? ""}
-          >
-            <FormControlLabel
-              value={listQuestion[currentQuestionIndex]?.optionA}
-              control={<Radio />}
-              label={listQuestion[currentQuestionIndex]?.optionA}
-              disabled={questionData[currentQuestionIndex]?.on}
+    <div className="total">
+      <div className="container">
+        <p>
+          {" "}
+          {timeRest?.minutes}:{timeRest?.seconds}
+        </p>
+        <div className="child1">
+          <Stack spacing={2} style={{ width: "300px" }}>
+            <Pagination
+              count={listQuestion.length}
+              shape="rounded"
+              color="error"
+              page={currentPage}
+              onChange={handleChangePage}
             />
-            <FormControlLabel
-              value={listQuestion[currentQuestionIndex]?.optionB}
-              control={<Radio />}
-              label={listQuestion[currentQuestionIndex]?.optionB}
-              disabled={questionData[currentQuestionIndex]?.on}
-            />
-            <FormControlLabel
-              value={listQuestion[currentQuestionIndex]?.optionC}
-              control={<Radio />}
-              label={listQuestion[currentQuestionIndex]?.optionC}
-              disabled={questionData[currentQuestionIndex]?.on}
-            />
-            <FormControlLabel
-              value={listQuestion[currentQuestionIndex]?.optionD}
-              control={<Radio />}
-              label={listQuestion[currentQuestionIndex]?.optionD}
-              disabled={questionData[currentQuestionIndex]?.on}
-            />
-          </RadioGroup>
-        </FormControl>
-        <h3 style={{ color: "#1da1f2" }}>
-          {questionData[currentQuestionIndex]?.answer === "true" && <p>True</p>}
-        </h3>
-        <h3 style={{ color: "#1da1f2" }}>
-          {questionData[currentQuestionIndex]?.answer === "false" && (
-            <p style={{ color: "red" }}>
-              False.Answer correct:
-              {questionData[currentQuestionIndex]?.correctAnswer}
-            </p>
+          </Stack>
+          <div className="btn-button">
+            <Button
+              style={{ marginRight: "20px" }}
+              variant="contained"
+              color="primary"
+              onClick={() => history.push("/")}
+            >
+              {" "}
+              Back{" "}
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => handleSubmit()}
+              style={{ marginRight: "20px" }}
+            >
+              {" "}
+              Submit{" "}
+            </Button>
+            <Button onClick={handleReset} variant="contained" color="error">
+              Reset
+            </Button>
+          </div>
+        </div>
+        <div className="child2">
+          <FormControl>
+            <h2>
+              {currentQuestionIndex + 1}.
+              {listQuestion[currentQuestionIndex]?.question}
+            </h2>
+            {listQuestion[currentQuestionIndex]?.option.map(
+              (question, index) => {
+                return (
+                  <div key={index}>
+                    <RadioGroup
+                      aria-labelledby="demo-radio-buttons-group-label"
+                      name="radio-buttons-group"
+                      onChange={handleChangeValue}
+                      value={
+                        questionData[currentQuestionIndex]?.chooseAnswer ?? ""
+                      }
+                    >
+                      <FormControlLabel
+                        value={question}
+                        control={<Radio />}
+                        label={question}
+                        disabled={questionData[currentQuestionIndex]?.on}
+                      />
+                    </RadioGroup>
+                  </div>
+                );
+              }
+            )}
+          </FormControl>
+          <h3 style={{ color: "#1da1f2" }}>
+            {questionData[currentQuestionIndex]?.answer === "true" && (
+              <p>True</p>
+            )}
+          </h3>
+          <h3 style={{ color: "#1da1f2" }}>
+            {questionData[currentQuestionIndex]?.answer === "false" && (
+              <p style={{ color: "red" }}>
+                False.Answer correct:
+                {questionData[currentQuestionIndex]?.correctAnswer}
+              </p>
+            )}
+          </h3>
+          {questionData[currentQuestionIndex]?.chooseAnswer && (
+            <Button
+              className="btn-next"
+              onClick={() => handleBtnNext(currentQuestionIndex)}
+            >
+              {" "}
+              Next
+            </Button>
           )}
-        </h3>
-        {questionData[currentQuestionIndex]?.chooseAnswer && (
-          <Button
-            className="btn-next"
-            onClick={() => handleBtnNext(currentQuestionIndex)}
-          >
-            {" "}
-            Next
-          </Button>
-        )}
+        </div>
       </div>
+      {/* <div className="view-result">
+        <View />
+      </div> */}
     </div>
   );
 }
-
 export default Question;

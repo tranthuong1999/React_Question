@@ -1,7 +1,4 @@
-import logo from "./logo.svg";
-import "./App.css";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-
 import Question from "./components/Question";
 import Home from "./components/Home";
 
@@ -10,11 +7,11 @@ function App() {
     <div>
       <BrowserRouter>
         <Switch>
-          <Route path="/home">
-            <Home />
+          <Route path="/question">
+            <Question />
           </Route>
           <Route path="/">
-            <Question />
+            <Home />
           </Route>
         </Switch>
       </BrowserRouter>

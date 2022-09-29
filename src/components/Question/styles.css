@@ -1,17 +1,25 @@
 
-
-
-
+.total{
+    display: flex;
+    flex-direction: column;
+}
 .container{
     display: flex;
     flex-direction: row;
     margin-left: 20px;
+    flex-grow: 1;
 }
 .child1{
     margin-top: 120px;
-    margin-right: 200px;
+    margin-right: 20px;
 }
 .btn-next{
     background-color: black !important;
     color : white !important
+}
+.view-result{
+    flex-grow: 4;
+}
+.btn-button{
+    margin-top: 20px;
 }
