@@ -1,14 +1,18 @@
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import Question from "./components/Question";
+import QuestionTest from "./components/QuestionTest";
 import Home from "./components/Home";
+import View from "./components/View";
 
 function App() {
   return (
     <div>
       <BrowserRouter>
         <Switch>
-          <Route path="/question">
-            <Question />
+          <Route path="/question-test">
+            <QuestionTest />
+          </Route>
+          <Route path="/view-answer">
+            <View />
           </Route>
           <Route path="/">
             <Home />

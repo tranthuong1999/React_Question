@@ -4,10 +4,18 @@ import { useHistory } from "react-router-dom";
 
 export default function Home() {
   const history = useHistory();
+
   return (
     <div>
       <h1> Home</h1>
-      <Button onClick={() => history.push("/question")}> StartTime</Button>
+      <Button
+        variant="contained"
+        color="success"
+        onClick={() => history.push("/question-test")}
+      >
+        {" "}
+        Start Time
+      </Button>
     </div>
   );
 }
