@@ -9,47 +9,34 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import {
   question,
-  times,
   submits,
   onQuestion,
   resetQuestion,
   getQuestions,
 } from "../../redux/questionSlice";
 import { useHistory } from "react-router-dom";
-import View from "../ViewTest";
+import View from "../View";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { useTimer } from "react-timer-hook";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-function QuestionTest({ expiryTimestamp }) {
+function Question() {
+  const [answer, setAnswer] = useState("");
+  const [chooseAnswer, setChooseAnswer] = useState();
+  const [on, setOn] = useState(false);
   const listQuestion = useSelector((state) => state.question.question);
 
   const questionTodo = useSelector((state) => state.question.pageData);
 
   const isSubmit = useSelector((state) => state.question.submit);
 
-  const timeRest = useSelector((state) => state.question.times);
-
   const isOnQuestion = useSelector((state) => state.question.onQuestion);
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(1);
-
-  const time = new Date();
-
-  const { seconds, minutes, pause, restart } = useTimer({
-    expiryTimestamp,
-    onExpire: () => {
-      alert("Time out");
-      dispatch(submits(true));
-      dispatch(onQuestion(true));
-    },
-  });
 
   const [open, setOpen] = useState(false);
 
@@ -78,27 +65,36 @@ function QuestionTest({ expiryTimestamp }) {
   }, []);
 
   useEffect(() => {
-    if (timeRest > 0) {
-      startTime(timeRest);
+    if (answer) {
+      dispatch(
+        question({
+          chooseAnswer,
+          answer,
+          on,
+          page: currentPage,
+          correct: listQuestion[currentQuestionIndex].answer,
+        })
+      );
     }
-  }, []);
-
-  const startTime = (seconds) => {
-    time.setSeconds(time.getSeconds() + seconds);
-    restart(time);
-  };
+  }, [answer]);
 
   const handleChangeValue = (e) => {
-    dispatch(
-      question({
-        chooseAnswer: e.target.value,
-        page: currentPage,
-        id: listQuestion[currentQuestionIndex]?._id,
-      })
-    );
+    const chooseAnswer = e.target.value;
+    const answerCorrect = listQuestion[currentQuestionIndex]?.answer;
+    if (chooseAnswer.localeCompare(answerCorrect) === 0) {
+      setAnswer("Correct");
+    }
+    if (chooseAnswer.localeCompare(answerCorrect) !== 0) {
+      setAnswer("False");
+    }
+    setChooseAnswer(chooseAnswer);
+    setOn(true);
   };
 
   const handleChangePage = (event, value) => {
+    if (value > currentQuestionIndex + 1) {
+      return;
+    }
     setCurrentPage(value);
     setCurrentQuestionIndex(value - 1);
   };
@@ -107,7 +103,6 @@ function QuestionTest({ expiryTimestamp }) {
     setOpen(false);
     dispatch(onQuestion(true));
     dispatch(submits(true));
-    pause(times);
   };
 
   const handleReset = () => {
@@ -118,26 +113,24 @@ function QuestionTest({ expiryTimestamp }) {
     dispatch(onQuestion(false));
     setCurrentPage(1);
     setCurrentQuestionIndex(0);
-    startTime(30);
   };
-
-  dispatch(times(minutes * 60 + seconds));
-
-  // console.log("Time----------", seconds);
-
-  const check = questionTodo?.find((e) => {
-    return e.id === listQuestion[currentQuestionIndex]?._id;
-  });
+  const endGame = () => {
+    alert("End game");
+    dispatch(submits(true));
+  };
+  const handleBtnNext = () => {
+    if (currentPage + 1 > listQuestion.length) {
+      endGame();
+      return;
+    }
+    setAnswer("");
+    setCurrentPage(currentPage + 1);
+    setCurrentQuestionIndex(currentQuestionIndex + 1);
+  };
 
   return (
     <div className="total">
       <div className="container">
-        <AccessTimeIcon
-          style={{ fontSize: "35px", marginRight: "5px", marginTop: "10px" }}
-        />
-        <p>
-          {minutes}:{seconds}
-        </p>
         <div className="child1">
           <Stack spacing={2} style={{ width: "300px" }}>
             <Pagination
@@ -183,7 +176,7 @@ function QuestionTest({ expiryTimestamp }) {
             aria-labelledby="demo-radio-buttons-group-label"
             name="radio-buttons-group"
             onChange={handleChangeValue}
-            value={check?.chooseAnswer || null}
+            value={questionTodo[currentQuestionIndex]?.chooseAnswer || null}
           >
             {listQuestion[currentQuestionIndex]?.option.map(
               (question, index) => {
@@ -193,13 +186,28 @@ function QuestionTest({ expiryTimestamp }) {
                       value={question}
                       control={<Radio />}
                       label={question}
-                      disabled={isOnQuestion}
+                      disabled={
+                        questionTodo[currentQuestionIndex]?.on || isOnQuestion
+                      }
                     />
                   </div>
                 );
               }
             )}
           </RadioGroup>
+          <div style={{ color: "red" }}>
+            {questionTodo[currentQuestionIndex]?.answer}
+          </div>
+          {questionTodo[currentQuestionIndex]?.chooseAnswer && (
+            <Button
+              style={{ marginTop: "60px" }}
+              variant="contained"
+              color="error"
+              onClick={handleBtnNext}
+            >
+              Next
+            </Button>
+          )}
         </div>
         <div>
           <Dialog
@@ -256,4 +264,4 @@ function QuestionTest({ expiryTimestamp }) {
     </div>
   );
 }
-export default QuestionTest;
+export default Question;

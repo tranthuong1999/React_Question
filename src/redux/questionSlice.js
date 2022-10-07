@@ -1,4 +1,13 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+export const getQuestions = createAsyncThunk(
+  "question/getQuestions",
+  async (thunkAPI) => {
+    const res = await fetch("http://localhost:8000/api/questions");
+    const data = await res.json();
+    return data;
+  }
+);
 
 const questionSlice = createSlice({
   name: "question",
@@ -8,11 +17,9 @@ const questionSlice = createSlice({
     times: null,
     submit: null,
     onQuestion: false,
+    loading: false,
   },
   reducers: {
-    listQuestion: (state, action) => {
-      state.question = [...action.payload];
-    },
     question: (state, action) => {
       state.pageData = [
         ...new Map(
@@ -21,6 +28,7 @@ const questionSlice = createSlice({
       ].sort((a, b) => a.page - b.page);
     },
     times: (state, action) => {
+      console.log("timessssssssss", action.payload);
       state.times = action.payload;
     },
     submits: (state, action) => {
@@ -31,6 +39,18 @@ const questionSlice = createSlice({
     },
     resetQuestion: (state, action) => {
       state.pageData = [];
+    },
+  },
+  extraReducers: {
+    [getQuestions.pending]: (state) => {
+      state.loading = true;
+    },
+    [getQuestions.fulfilled]: (state, action) => {
+      state.loading = false;
+      state.question = action.payload;
+    },
+    [getQuestions.rejected]: (state) => {
+      state.loading = false;
     },
   },
 });

@@ -3,12 +3,20 @@ import { useSelector } from "react-redux";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-export default function View() {
+export default function ViewAnswer() {
   const listQuestion = useSelector((state) => state.question.question);
 
   const questionTodo = useSelector((state) => state.question.pageData);
 
   console.log("Question todo---------", questionTodo);
+
+  const check = listQuestion.map((e) => {
+    const chooseAnswer = questionTodo.find((item) => item.id === e._id);
+    return {
+      ...e,
+      chooseAnswer,
+    };
+  });
 
   return (
     <div>
@@ -22,7 +30,7 @@ export default function View() {
             <RadioGroup
               aria-labelledby="demo-radio-buttons-group-label"
               name="radio-buttons-group"
-              value={questionTodo[index]?.chooseAnswer}
+              value={check[index]?.chooseAnswer?.chooseAnswer || null}
             >
               {question.option.map((item, index) => {
                 return (
@@ -35,12 +43,15 @@ export default function View() {
                   </div>
                 );
               })}
-              {questionTodo[index]?.answer === "Correct" ? (
-                <div> True </div>
+              {check[index]?.chooseAnswer?.chooseAnswer.localeCompare(
+                check[index].answer
+              ) === 0 ? (
+                <p style={{ color: "green" }}>True</p>
               ) : (
-                <div style={{ color: "red" }}>
-                  False.{questionTodo[index]?.correct}{" "}
-                </div>
+                <p style={{ color: "red" }}>
+                  {" "}
+                  False. Correct is : {check[index].answer}
+                </p>
               )}
             </RadioGroup>
           </div>

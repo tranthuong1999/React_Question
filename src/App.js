@@ -1,7 +1,8 @@
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import QuestionTest from "./components/QuestionTest";
 import Home from "./components/Home";
-import View from "./components/View";
+import ViewTest from "./components/ViewTest";
+import Question from "./components/Question";
 
 function App() {
   return (
@@ -11,8 +12,11 @@ function App() {
           <Route path="/question-test">
             <QuestionTest />
           </Route>
+          <Route path="/question">
+            <Question />
+          </Route>
           <Route path="/view-answer">
-            <View />
+            <ViewTest />
           </Route>
           <Route path="/">
             <Home />
