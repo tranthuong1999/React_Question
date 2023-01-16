@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
-import questionReducer from "./questionSlice";
+import numberReducer from "./numberSlice";
 import storage from "redux-persist/lib/storage";
 import { persistReducer } from "redux-persist";
 
@@ -10,7 +10,7 @@ const persistConfig = {
 };
 
 const rootReducer = combineReducers({
-  question: questionReducer,
+  number: numberReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
