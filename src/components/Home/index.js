@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addNumber
@@ -16,23 +16,29 @@ export default function Home() {
   const [valueErr, setValueErr] = useState()
   const dispatch = useDispatch();
   const numbers = useSelector((state) => state.number.listNumber);
+  const [errorTest, setErrorTest] = useState()
 
   const [test, setTest] = useState(numbers)
+  useEffect(() => {
+    setTest(numbers)
+  }, [numbers.length])
 
 
 
   const handleAddNumber = (e) => {
     e.preventDefault()
+    const checkExites = numbers.find((e) => e.value.includes(value))
     var uid = new ShortUniqueId();
     if (!value) {
       setValueErr("Please enter a value")
       return;
     }
-    if (value && value.trim().length !== 4) {
-      setValueErr("Length must equal 4")
+    if (checkExites) {
+      setValueErr("Số đã tồn tại")
       return;
     }
     setValue('')
+    setTest(numbers)
     setValueErr()
     dispatch(addNumber({ value, id: uid() }))
   }
@@ -45,14 +51,21 @@ export default function Home() {
   }
   const handleChangeValue = (e) => {
     const text = (e.target.value).trim();
+    const check = test.filter((number) => number.value.toLowerCase().includes(text.toLowerCase()))
     const members = text.length > 1
-      ? test.filter((number) => number.value.toLowerCase().includes(text.toLowerCase()))
+      ? check
       : numbers;
-
+    if (text.length === 0) {
+      setValueErr('')
+      setErrorTest("")
+    }
+    if (check.length === 0) {
+      setErrorTest("Không tìm thấy kết quả")
+    }
     setValue(e.target.value)
     setTest(members)
   }
-  console.log("test----" , test)
+  console.log("test", numbers)
 
   return (
     <Box>
@@ -71,12 +84,15 @@ export default function Home() {
       {
         numbers?.length === 0 && <h1> Chưa có dữ liệu</h1>
       }
+      <h1>
+        {errorTest}
+      </h1>
       <h1> {valueErr} </h1>
       <Box>
         {
           test?.map((number) => {
             return (
-              <Box style={{ display: 'flex', flexDirection: 'row', marginTop: '20px' , marginLeft: '20px'}}>
+              <Box style={{ display: 'flex', flexDirection: 'row', marginTop: '20px', marginLeft: '20px' }}>
                 <EditText
                   name={number.id}
                   defaultValue={number.value}
@@ -94,7 +110,6 @@ export default function Home() {
             )
           })
         }
-        { test.length === 0 && < h1> Không tìm thấy kết quả</h1>}
       </Box>
     </Box>
   );
