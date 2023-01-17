@@ -39,6 +39,7 @@ export default function Home() {
     }
     setValue('')
     setTest(numbers)
+    setErrorTest('')
     setValueErr()
     dispatch(addNumber({ value, id: uid() }))
   }
