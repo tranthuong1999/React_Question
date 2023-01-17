@@ -88,7 +88,7 @@ export default function Home() {
       <h1>
         {errorTest}
       </h1>
-      <h1> {valueErr} </h1>
+      <h4> {valueErr} </h4>
       <Box>
         {
           test?.map((number) => {
