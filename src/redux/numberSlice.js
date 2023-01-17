@@ -19,8 +19,7 @@ const numberSlice = createSlice({
       const index = _.findIndex(state.listNumber, { id: action.payload.id });
       state.listNumber.splice(index, 1, action.payload);
     },
-    filterNumber : ( state , action) =>{
-      state.filterNumber = state.listNumber.filter( e => e.value.toLowerCase().includes(action.payload.value.toLowerCase()))
+    filterNumber: (state, action) => {
     }
   },
   extraReducers: {
@@ -28,6 +27,6 @@ const numberSlice = createSlice({
   },
 });
 
-export const { addNumber, deleteNumber, updateNumber , filterNumber } = numberSlice.actions;
+export const { addNumber, deleteNumber, updateNumber, filterNumber } = numberSlice.actions;
 
 export default numberSlice.reducer;

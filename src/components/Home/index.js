@@ -1,25 +1,28 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addNumber, filterNumber
+  addNumber
 } from "../../redux/numberSlice";
 import ListNumber from "../ListNumber";
 import { Box, Button, TextField } from '@mui/material';
 import ShortUniqueId from 'short-unique-id';
+import { EditText } from 'react-edit-text';
+import {
+  deleteNumber, updateNumber
+} from "../../redux/numberSlice";
 
 export default function Home() {
   const [value, setValue] = useState()
   const [valueErr, setValueErr] = useState()
-  const [valueFilter, setValueFilter] = useState()
   const dispatch = useDispatch();
-  const filter = useSelector((state) => state.number.filterNumber);
   const numbers = useSelector((state) => state.number.listNumber);
+
+  const [test, setTest] = useState(numbers)
 
 
 
   const handleAddNumber = (e) => {
     e.preventDefault()
-    const test = numbers.find(e => e.value.includes(value))
     var uid = new ShortUniqueId();
     if (!value) {
       setValueErr("Please enter a value")
@@ -29,66 +32,69 @@ export default function Home() {
       setValueErr("Length must equal 4")
       return;
     }
-    if (test) {
-      setValueErr(" con số đã tồn tại")
-      return;
-    }
-    console.log(test)
     setValue('')
     setValueErr()
     dispatch(addNumber({ value, id: uid() }))
   }
+  const handleUpdateNumber = ({ name, value }) => {
+    dispatch(updateNumber({ id: name, value }))
+  }
+
+  const handleDeleteNumber = (number) => {
+    dispatch(deleteNumber({ number }))
+  }
   const handleChangeValue = (e) => {
+    const text = (e.target.value).trim();
+    const members = text.length > 1
+      ? test.filter((number) => number.value.toLowerCase().includes(text.toLowerCase()))
+      : numbers;
+
     setValue(e.target.value)
+    setTest(members)
   }
-  const handleFilterNumber = () => {
-    if (!value) {
-      setValueFilter("Please enter a value")
-      return;
-    }
-    if (value && value.trim().length !== 4) {
-      setValueFilter("Length must equal 4")
-      return;
-    }
-    setValueFilter()
-    dispatch(filterNumber({ value }))
-  }
+  console.log("test----" , test)
 
   return (
     <Box>
+      <h1> Kết quả sổ xố</h1>
+      <h3> Tổng các số đã nhập : {numbers?.length} </h3>
       <Box style={{ display: 'flex', textAlign: 'center', flexDirection: 'row', marginTop: '30px', marginLeft: '20px' }}>
-        <label style={{ fontSize: '30px' }}>
-          Nhập con số may mắn :
-        </label>
         <TextField
           type="text"
           name="name"
           value={value}
           onChange={handleChangeValue}
-          style={{ width: '40%', height: "30%" }}
+          placeholder="Nhập số"
         />
-        <Button onClick={handleAddNumber}> Add </Button>
-        <Button onClick={handleFilterNumber}> Filter </Button>
+        <Button style={{ marginLeft: '10px' }} variant="contained" onClick={handleAddNumber}> Add </Button>
       </Box>
+      {
+        numbers?.length === 0 && <h1> Chưa có dữ liệu</h1>
+      }
       <h1> {valueErr} </h1>
-      <Box
-        style={{
-          fontSize: '30px',
-          textAlign: 'center', marginTop: '100px',
-        }}>
-        <ListNumber />
-      </Box>
-      <h1> Danh sách đã lọc :</h1>
       <Box>
-        <h1> {valueFilter}</h1>
         {
-          filter.length > 0 ?
-            (filter?.map((value) => {
-              return (
-                <h1> Bạn đã trúng thưởng :{value.value}</h1>
-              )
-            })) : (<h1> Chúc bạn may mắn lần sau</h1>)
+          test?.map((number) => {
+            return (
+              <Box style={{ display: 'flex', flexDirection: 'row', marginTop: '20px' , marginLeft: '20px'}}>
+                <EditText
+                  name={number.id}
+                  defaultValue={number.value}
+                  onSave={handleUpdateNumber}
+                  style={{ border: '1px solid black', width: '100px', height: '30px', textAlign: 'center', fontSize: '20px' }}
+                />
+                <Button
+                  variant="contained" color="error"
+                  style={{ marginLeft: '20px' }}
+                  onClick={() => handleDeleteNumber(number)}
+                >
+                  Xoá
+                </Button>
+              </Box>
+            )
+          })
         }
+        { test.length === 0 && < h1> Không tìm thấy kết quả</h1>}
       </Box>
     </Box>
   );
