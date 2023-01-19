@@ -91,7 +91,7 @@ export default function Home() {
       <h4> {valueErr} </h4>
       <Box>
         {
-          test?.map((number) => {
+          test?.map((number , index) => {
             return (
               <Box style={{ display: 'flex', flexDirection: 'row', marginTop: '20px', marginLeft: '20px' }}>
                 <EditText
@@ -105,7 +105,7 @@ export default function Home() {
                   style={{ marginLeft: '20px' }}
                   onClick={() => handleDeleteNumber(number)}
                 >
-                  Xoá
+                  Xoá----{index}
                 </Button>
               </Box>
             )
